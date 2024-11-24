@@ -2,6 +2,8 @@
 
 A Zsh plugin that allows you to interact with your shell using natural language.
 
+![](https://github.com/PsychArch/nlsh/blob/main/capture.gif)
+
 ## Features
 
 - 🤖 Converts natural language to shell commands
