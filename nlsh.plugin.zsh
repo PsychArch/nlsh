@@ -36,3 +36,5 @@ nlsh-key-binding() {
 zle -N nlsh-key-binding
 # Bind to Alt+Enter (Option+Return on macOS)
 bindkey '^[^M' nlsh-key-binding
+# Bind to Ctrl+DownArrow
+bindkey '^[[1;5B' nlsh-key-binding

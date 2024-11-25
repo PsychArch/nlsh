@@ -6,7 +6,9 @@ nlsh-get-system-info() {
     [[ $UID -eq 0 ]] && is_root=1
     
     local distro=""
-    if [[ -f /etc/os-release ]]; then
+    if [[ "$os" == "Darwin" ]]; then
+        distro="macOS $(sw_vers -productVersion)"
+    elif [[ -f /etc/os-release ]]; then
         distro=$(source /etc/os-release && echo $NAME)
     fi
     

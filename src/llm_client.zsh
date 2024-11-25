@@ -8,7 +8,7 @@ nlsh-parse-response() {
     if content=$(echo "$response" | jq -r '.choices[0].message.content'); then
         echo "$content"
     else
-        echo "Error: Cannot parse response"
+        echo "Error: Cannot parse response $response"
         return 1
     fi
 }
@@ -19,7 +19,11 @@ nlsh-llm-get-command() {
     
     # Determine API configuration based on available keys
     local api_key api_base model
-    if [[ -n $XAI_API_KEY ]]; then
+    if [[ -n $NLSH_API_KEY ]]; then
+        api_key=$NLSH_API_KEY
+        api_base=$NLSH_API_BASE
+        model=$NLSH_API_MODEL
+    elif [[ -n $XAI_API_KEY ]]; then
         api_key=$XAI_API_KEY
         api_base="https://api.x.ai"
         model="grok-beta"
@@ -28,7 +32,7 @@ nlsh-llm-get-command() {
         api_base="https://api.openai.com"
         model="gpt-3.5-turbo"
     else
-        echo "Error: No supported API key found. Set OPENAI_API_KEY or XAI_API_KEY"
+        echo "Error: No supported API key found. Set NLSH_API_KEY, OPENAI_API_KEY, or XAI_API_KEY"
         return 1
     fi
    
@@ -36,11 +40,11 @@ nlsh-llm-get-command() {
     local payload="{
         \"model\": \"$model\",
         \"messages\": [
-            {\"role\": \"system\", \"content\": \"You are a shell command generator. Only output the exact command to execute. System context: $system_context\"},
+            {\"role\": \"system\", \"content\": \"You are a shell command generator. Only output the exact command to execute in a single line in plain text. Do not include any other text. Do not use Markdown. System context: $system_context\"},
             {\"role\": \"user\", \"content\": \"$input\"}
-        ]
+        ],
+        \"temperature\": 0
     }"
-    
     # Make API request using OpenAI-compatible endpoint
     local response=$(curl -s -S \
          -H "Authorization: Bearer $api_key" \
