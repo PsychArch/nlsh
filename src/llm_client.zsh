@@ -1,10 +1,5 @@
 # LLM client handler for natural language shell commands
 
-# Constants (with safety checks to prevent re-declaration errors)
-[[ -z "$DEFAULT_MODEL" ]] && readonly DEFAULT_MODEL="gpt-3.5-turbo"
-[[ -z "$DEFAULT_URL_BASE" ]] && readonly DEFAULT_URL_BASE="https://api.openai.com"
-[[ -z "$API_TIMEOUT" ]] && readonly API_TIMEOUT=30
-
 # Helper function to validate environment
 nlsh-validate-environment() {
     if [[ -z $OPENAI_API_KEY ]]; then
@@ -41,7 +36,7 @@ nlsh-parse-response() {
 nlsh-prepare-payload() {
     local input=$1
     local system_context=$2
-    local model=${OPENAI_MODEL:-$DEFAULT_MODEL}
+    local model=${OPENAI_MODEL:-"gpt-3.5-turbo"}
     
     cat <<EOF
 {
@@ -57,7 +52,7 @@ EOF
 
 nlsh-make-api-request() {
     local payload=$1
-    local url_base=${OPENAI_URL_BASE:-$DEFAULT_URL_BASE}
+    local url_base=${OPENAI_URL_BASE:-"https://api.openai.com"}
     local curl_cmd=(curl -s -S)
     
     # Add proxy if configured
@@ -68,7 +63,7 @@ nlsh-make-api-request() {
     if ! response=$("${curl_cmd[@]}" \
          -H "Authorization: Bearer $OPENAI_API_KEY" \
          -H "Content-Type: application/json" \
-         --max-time $API_TIMEOUT \
+         --max-time 30 \
          -d "$payload" \
          "$url_base/chat/completions" 2>&1); then
         echo "Error: Failed to connect to API - $response"
