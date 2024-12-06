@@ -1,74 +1,98 @@
-# Natural Language Shell (nlsh) 🚀
+# Natural Language Shell (nlsh)
 
 A Zsh plugin that allows you to interact with your shell using natural language.
 
-![](https://github.com/PsychArch/nlsh/blob/main/capture.gif)
+![Natural Language Shell Demo](https://github.com/PsychArch/nlsh/blob/main/capture.gif)
 
 ## Features
 
 - 🤖 Converts natural language to shell commands
-- 🔄 Supports multiple LLM providers (OpenAI API compatible)
-- 🎯 Special support for X.AI's Grok model
-- ⌨️ Simple keyboard shortcut (Alt+Enter)
+- 🔄 Supports OpenAI-compatible API endpoints
+- ⌨️ Simple keyboard shortcuts:
+  - Linux/Windows: `Alt+Enter` or `Ctrl+⬇️`
+  - macOS: `Option+Return`
 
 ## Requirements
 
-- Zsh
-- curl
-- jq
-- An API key for OpenAI or X.AI
+- Zsh shell
+- curl command-line tool
+- jq JSON processor
+- OpenAI API key or compatible service
 
 ## Installation
 
-### Using antidote
+### Option 1: Using antidote
 
-Choose one of these installation methods:
+Add to your `.zsh_plugins.txt`:
 
-Manual antidote bundle (if you already use antidote)
-
-1. Add to your `.zsh_plugins.txt`:
 ```text
 PsychArch/nlsh
 ```
 
-2. Or use antidote bundle directly in your `.zshrc`:
+Or add directly to your `.zshrc`:
+
 ```zsh
 # Initialize antidote
 source ${ZDOTDIR:-~}/.antidote/antidote.zsh
+source <(antidote init)
 
-# Add to your plugins
+# Add nlsh plugin
 antidote bundle PsychArch/nlsh
+```
+
+### Option 2: Manual Installation
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/PsychArch/nlsh ~/.nlsh
+
+# 2. Add to your .zshrc
+echo 'source ~/.nlsh/nlsh.plugin.zsh' >> ~/.zshrc
+
+# 3. Reload your shell
+source ~/.zshrc
 ```
 
 ## Usage
 
 1. Type your natural language command in the terminal
-2. Press `Alt+Enter`
-3. The plugin will convert your text to a shell command
-4. Press Enter to execute or modify as needed
+2. Press the keyboard shortcut for your platform:
+   - Linux/Windows: `Alt+Enter` or `Ctrl+⬇️`
+   - macOS: `Option+Return`
+3. Review the generated shell command
+4. Press `Enter` to execute or modify as needed
 
 ## Configuration
 
-You can customize the plugin behavior with these environment variables:
+Configure the plugin using these environment variables in your `.zshrc`:
 
 ```bash
-#For OpenAI
+# Required
 export OPENAI_API_KEY="your-api-key"
-#For X.AI (Grok)
-export XAI_API_KEY="your-xai-api-key
+
+# Optional configurations
+export OPENAI_MODEL="gpt-4"                              # Default: gpt-3.5-turbo
+export OPENAI_URL_BASE="https://your-api-endpoint.com"   # Default: https://api.openai.com
+export OPENAI_PROXY="http://proxy.example.com:8080"      # Optional: HTTP proxy
 ```
 
 ## How It Works
 
-1. When triggered, the plugin captures your natural language input
-2. Collects system information (OS, distribution, whether root user)
-3. Sends the request to the configured LLM provider
-4. Replaces your input with the generated shell command
+1. The plugin captures your natural language input when triggered
+2. Collects relevant system information:
+   - Operating system
+   - Distribution details
+   - User privileges
+3. Sends a request to the configured OpenAI-compatible API
+4. Converts the response into an executable shell command
+
+## Security Notes
+
+- Review generated commands before execution
+- Be cautious with sensitive system commands
+- Keep your API key secure
 
 ## License
 
-MIT License - See LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Contributing
-
-Contributions are welcome! Feel free to submit issues and pull requests.
