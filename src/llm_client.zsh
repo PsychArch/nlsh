@@ -20,7 +20,7 @@ nlsh-parse-response() {
         else
             "error: unknown response format"
         end' 2>/dev/null); then
-        echo "Error: Failed to parse API response"
+        echo "Error: Failed to parse API response: $response"
         return 1
     fi
     
