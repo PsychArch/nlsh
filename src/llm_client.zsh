@@ -52,7 +52,7 @@ EOF
 
 nlsh-make-api-request() {
     local payload=$1
-    local url_base=${OPENAI_URL_BASE:-"https://api.openai.com"}
+    local url_base=${OPENAI_URL_BASE:-"https://api.openai.com/v1"}
     local curl_cmd=(curl -s -S)
     
     # Add proxy if configured
