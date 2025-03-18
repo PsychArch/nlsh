@@ -36,7 +36,7 @@ nlsh-parse-response() {
 nlsh-prepare-payload() {
     local input=$1
     local system_context=$2
-    local model=${OPENAI_MODEL:-"gpt-3.5-turbo"}
+    local model=${OPENAI_MODEL:-"gpt-4o-mini"}
     
     cat <<EOF
 {
