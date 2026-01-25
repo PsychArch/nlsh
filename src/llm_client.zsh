@@ -3,7 +3,15 @@
 # Helper function to validate environment
 nlsh-validate-environment() {
     if [[ -z $OPENAI_API_KEY ]]; then
-        echo "Error: OPENAI_API_KEY environment variable is not set"
+        print -u2 "Error: OPENAI_API_KEY environment variable is not set"
+        return 1
+    fi
+    if ! command -v jq >/dev/null 2>&1; then
+        print -u2 "Error: jq is required but not found in PATH"
+        return 1
+    fi
+    if ! command -v curl >/dev/null 2>&1; then
+        print -u2 "Error: curl is required but not found in PATH"
         return 1
     fi
     return 0
@@ -11,48 +19,46 @@ nlsh-validate-environment() {
 
 nlsh-parse-response() {
     local response="$1"
-    
+
     # Extract content using jq with multiple possible JSON paths
     local content
-    if ! content=$(echo "$response" | jq -r '
+    if ! content=$(print -r -- "$response" | jq -r '
         if .choices[0].message.content != null then
             .choices[0].message.content
+        elif .choices[0].text != null then
+            .choices[0].text
         else
             "error: unknown response format"
         end' 2>/dev/null); then
-        echo "Error: Failed to parse API response: $response"
+        print -u2 "Error: Failed to parse API response: $response"
         return 1
     fi
-    
+
     # Check for error in content
     if [[ "$content" == "error:"* ]]; then
-        echo "Error: $content"
+        print -u2 "Error: $content"
         return 1
     fi
-    
-    printf '%b' "$content"
+
+    print -r -- "$content"
 }
 
 nlsh-prepare-payload() {
     local input=$1
     local system_context=$2
-    local model=${OPENAI_MODEL:-"gpt-4o-mini"}
-    
-    cat <<EOF
-{
-    "model": "$model",
-    "messages": [
-        {"role": "system", "content": "You are a shell command generator. Only output the exact command to execute in plain text. Do not include any other text. Do not use Markdown. System context: $system_context"},
-        {"role": "user", "content": "$input"}
-    ],
-    "temperature": 0
-}
-EOF
+    local model=${OPENAI_MODEL:-"z-ai/glm-4.7"}
+
+    jq -n         --arg model "$model"         --arg system "You are a shell command generator. Only output the exact command to execute in plain text. Do not include any other text. Do not use Markdown. System context: $system_context"         --arg user "$input"         '{model:$model, messages:[{role:"system", content:$system},{role:"user", content:$user}], temperature:0}'
 }
 
 nlsh-make-api-request() {
     local payload=$1
-    local url_base=${OPENAI_URL_BASE:-"https://api.openai.com/v1"}
+    local url_base=${OPENAI_URL_BASE:-"https://openrouter.ai/api/v1"}
+    local normalized_base=${url_base%/}
+    if [[ "$normalized_base" != */v1 ]]; then
+        normalized_base="$normalized_base/v1"
+    fi
+    local endpoint="$normalized_base/chat/completions"
     local curl_cmd=(curl -s -S)
     
     # Add proxy if configured
@@ -65,20 +71,20 @@ nlsh-make-api-request() {
          -H "Content-Type: application/json" \
          --max-time 30 \
          -d "$payload" \
-         "$url_base/chat/completions" 2>&1); then
-        echo "Error: Failed to connect to API - $response"
+         "$endpoint" 2>&1); then
+        print -u2 "Error: Failed to connect to API - $response"
         return 1
     fi
     
-    echo "$response"
+    print -r -- "$response"
 }
 
 nlsh-check-api-error() {
     local response=$1
-    
-    if echo "$response" | jq -e '.error' >/dev/null 2>&1; then
-        local error_msg=$(echo "$response" | jq -r '.error.message')
-        echo "Error: API request failed - $error_msg"
+
+    if print -r -- "$response" | jq -e '.error' >/dev/null 2>&1; then
+        local error_msg=$(print -r -- "$response" | jq -r '.error.message')
+        print -u2 "Error: API request failed - $error_msg"
         return 1
     fi
     return 0
