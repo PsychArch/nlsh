@@ -8,19 +8,30 @@ source "${0:A:h}/src/ui.zsh"
 # Main function to handle natural language input
 nlsh-process() {
     local input=$BUFFER  # Get current line content
-    
+    local original_buffer=$BUFFER
+
     # Show processing spinner
     nlsh-ui-start-spinner "   🤖 Converting natural language to shell command... ✨      "
-    
+
     # Get system information for context
     local system_context=$(nlsh-get-system-info)
-    
+
     # Send request to LLM
-    local command=$(nlsh-llm-get-command "$input" "$system_context")
-    
+    local command
+    command=$(nlsh-llm-get-command "$input" "$system_context" 2>&1)
+    local exit_status=$?
+
     # Stop spinner
     nlsh-ui-stop-spinner
-    
+
+    if (( exit_status != 0 )); then
+        # Show error without clobbering the user's buffer
+        BUFFER="$original_buffer"
+        CURSOR=${#BUFFER}
+        zle -M "$command"
+        return $exit_status
+    fi
+
     # Replace current line with the command
     BUFFER="$command"
     CURSOR=${#BUFFER}  # Move cursor to end of line
