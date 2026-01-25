@@ -70,7 +70,7 @@ if typeset -f zvm_define_widget &>/dev/null; then
         bindkey -M viins '^[[1;5B' nlsh-key-binding
         bindkey -M vicmd '^[[1;5B' nlsh-key-binding
     }
-elif bindkey -lL | grep -q "main.*vi" || bindkey -l | grep -q "viins"; then
+elif bindkey -lL | grep -qE '^bindkey -A (viins|vicmd) main'; then
     # For built-in zsh vi mode
     bindkey -M viins '^[^M' nlsh-key-binding      # Alt+Enter in insert mode
     bindkey -M vicmd '^[^M' nlsh-key-binding      # Alt+Enter in normal mode
