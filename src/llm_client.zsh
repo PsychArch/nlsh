@@ -54,8 +54,7 @@ nlsh-prepare-payload() {
 nlsh-make-api-request() {
     local payload=$1
     local url_base=${OPENAI_URL_BASE:-"https://openrouter.ai/api/v1"}
-    local normalized_base=${url_base%/}
-    local endpoint="$normalized_base/chat/completions"
+    local endpoint="${url_base%/}/chat/completions"
     local curl_cmd=(curl -s -S)
     
     # Add proxy if configured
