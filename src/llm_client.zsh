@@ -55,9 +55,6 @@ nlsh-make-api-request() {
     local payload=$1
     local url_base=${OPENAI_URL_BASE:-"https://openrouter.ai/api/v1"}
     local normalized_base=${url_base%/}
-    if [[ "$normalized_base" != */v1 ]]; then
-        normalized_base="$normalized_base/v1"
-    fi
     local endpoint="$normalized_base/chat/completions"
     local curl_cmd=(curl -s -S)
     
